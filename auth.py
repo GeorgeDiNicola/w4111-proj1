@@ -79,8 +79,7 @@ def login():
         error = None
         user = g.conn.execute(
             "SELECT user_id, password FROM Application_User WHERE user_name = %s", (username,)
-        ).fetchone
-        ()
+        ).fetchone()
 
         if user is None:
             error = 'Incorrect username.'
