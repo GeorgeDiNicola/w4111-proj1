@@ -1,6 +1,4 @@
-GET_ALL_USERS = 
-'''
-SELECT
+GET_ALL_USERS = '''SELECT
 	user_id, 
 	first_name, 
 	last_name, 
@@ -12,9 +10,7 @@ SELECT
 FROM Application_User
 '''
 
-GET_ALL_TUTORS = 
-'''
-SELECT
+GET_ALL_TUTORS = '''SELECT
 	lister_id,
     user_id, 
 	Years_experience,
@@ -22,18 +18,14 @@ SELECT
 FROM Lister
 '''
 
-GET_ALL_CLIENTS = 
-'''
-SELECT
+GET_ALL_CLIENTS = '''SELECT
 	client_id,
     user_id, 
 	date_of_birth
 FROM Lister
 '''
 
-GET_DETAILED_LISTER_INFO = 
-'''
-SELECT 
+GET_DETAILED_LISTER_INFO = '''SELECT 
 	u.first_name, 
 	u.last_name, 
 	u.phone_number, 
@@ -45,9 +37,7 @@ WHERE u.user_id = l.user_id AND l.lister_id = t.lister_id AND t.category_id = c.
 '''
 
 
-GET_AVG_PRICE_PER_ACTIVITY = 
-'''
-	SELECT c.activity_name, ROUND(AVG(l.price_per_hour),2) AS Average
+GET_AVG_PRICE_PER_ACTIVITY = '''SELECT c.activity_name, ROUND(AVG(l.price_per_hour),2) AS Average
 	FROM lister l
 	INNER JOIN teaches t ON l.lister_id = t.lister_id
 	INNER JOIN category c ON t.category_id = c.category_id
@@ -55,9 +45,7 @@ GET_AVG_PRICE_PER_ACTIVITY =
 	ORDER BY AVG(l.price_per_hour) DESC;
 '''
 
-GET_TUTORS_WITH_RATING =
-'''
-SELECT
+GET_TUTORS_WITH_RATING = '''SELECT
 	au.first_name, au.last_name, r.comment, r.rating
 FROM review r
 INNER JOIN reviews rs on rs.review_id = r.review_id
