@@ -48,8 +48,6 @@ def register():
         elif not len(phone_number) == 10:
             error = 'Phone Number should not have dashes. 10 digit format required.'
         
-        
-        #cur.execute("select username from users where username = '%s'", (name,))
         elif g.conn.execute(
             "SELECT user_id FROM Application_User WHERE user_name = %s", (username,)
         ).fetchone() is not None:
