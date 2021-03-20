@@ -111,6 +111,7 @@ def load_logged_in_user():
         ).fetchone()
 
 @login_required
+@bp.route('/logout', methods=('GET', 'POST'))
 def logout():
     session.clear()
     return redirect(url_for('index'))

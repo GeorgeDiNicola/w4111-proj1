@@ -116,13 +116,7 @@ def home():
 
   See its API: https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data
   """
-
-
-  cursor = g.conn.execute(sql.GET_DETAILED_LISTER_INFO)
-  names = []
-  for result in cursor:
-    names.append(result['first_name'])  # can also be accessed using result[0]
-  cursor.close()
+  lister_info = g.conn.execute(sql.GET_DETAILED_LISTER_INFO)
 
   #
   # Flask uses Jinja templates, which is an extension to HTML where you can
@@ -150,9 +144,13 @@ def home():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = names)
+  
+  #context = dict(data = names)
+  #context = lister_info
 
-  return render_template("index.html", **context)
+  return render_template("index.html", data=lister_info)
+
+  #return render_template("index.html", **context)
 
 
 # Example of adding new data to the database
