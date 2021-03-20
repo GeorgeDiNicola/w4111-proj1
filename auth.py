@@ -52,9 +52,14 @@ def register():
             error = 'User {} is already registered.'.format(username)
         
         if error is None:
+            # get count of users
+            count = g.conn.execute(
+                "SELECT COUNT(*) as tot FROM Application_User").fetchone()
+            new_id = count['tot'] + 1
+            # add new user
             g.conn.execute(
                 'INSERT INTO Application_User (user_id, first_name, last_name, user_email, city, state, zip, phone_number, user_name, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                21, first_name, last_name, email, city, state, zip_code, phone_number, username, generate_password_hash(password)
+                new_id, first_name, last_name, email, city, state, zip_code, phone_number, username, generate_password_hash(password)
             )
             return redirect(url_for('auth.login'))
 
@@ -70,10 +75,10 @@ def login():
         password = request.form['password']
 
         error = None
-        
         user = g.conn.execute(
             "SELECT user_id, password FROM Application_User WHERE user_name = %s", (username,)
-        ).fetchone()
+        ).fetchone
+        ()
 
         if user is None:
             error = 'Incorrect username.'
