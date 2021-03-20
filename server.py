@@ -105,6 +105,7 @@ def index():
 # The functions for each app.route need to have different names
 #
 @app.route('/home')
+@auth.login_required
 def home():
   """
   request is a special object that Flask provides to access web request information:
@@ -156,6 +157,7 @@ def home():
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
+@auth.login_required
 def add():
   name = request.form['name']
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
