@@ -1,5 +1,10 @@
 import functools
 
+import os
+  # accessible as a variable in index.html:
+from sqlalchemy import *
+from sqlalchemy.pool import NullPool
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
@@ -37,17 +42,23 @@ def register():
             error = 'Zip Code is required.'
         elif not phone_number:
             error = 'Phone Number is required.'
+        
+        
+        #cur.execute("select username from users where username = '%s'", (name,))
         elif g.conn.execute(
-            'SELECT user_id FROM Application_User WHERE user_name = %s', username
+            "SELECT user_id FROM Application_User WHERE user_name = %s", (username,)
         ).fetchone() is not None:
             error = 'User {} is already registered.'.format(username)
+        
         if error is None:
             print("here 2")
+            
             g.conn.execute(
                 'INSERT INTO Application_User (user_id, first_name, last_name, user_email, city, zip, phone_number, user_name, password) VALUES (%d, %s, %s, %s, %s, %s, %s, %s, %s)',
                 20, first_name, last_name, user_email, city, zip_code, phone_number, username, generate_password_hash(password)
             )
-            g.conn.commit()
+            
+            #g.conn.commit()
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -61,8 +72,9 @@ def login():
         password = request.form['password']
 
         error = None
+        
         user = g.conn.execute(
-            'SELECT * FROM Application_User WHERE user_name = ?', (username,)
+            "SELECT user_id FROM Application_User WHERE user_name = %s", (username,)
         ).fetchone()
 
         if user is None:
