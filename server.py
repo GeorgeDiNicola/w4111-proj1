@@ -40,16 +40,6 @@ DATABASEURI = "postgresql://gd2581:482543@34.73.36.248/proj1part2" # Modify this
 #
 engine = create_engine(DATABASEURI)
 
-#
-# Example of running queries in your database
-# Note that this will probably not work if you already have a table named 'test' in your database, containing meaningful data. This is only an example showing you how to run queries in your database using SQLAlchemy.
-#
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
-
 
 @app.before_request
 def before_request():
@@ -108,9 +98,6 @@ def index():
   print(request.args)
 
 
-  #
-  # example of a database query
-  #
   cursor = g.conn.execute(sql.GET_DETAILED_LISTER_INFO)
   names = []
   for result in cursor:

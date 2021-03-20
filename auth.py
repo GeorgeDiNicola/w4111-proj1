@@ -5,7 +5,6 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-#from flaskr.db import get_db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -14,24 +13,41 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
+        city = request.form['city']
+        state = request.form['state']
+        zip_code = request.form['zip_code']
+        phone_number = request.form['phone_number']
+
         error = None
 
         if not username:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        elif db.execute(
-            'SELECT id FROM Application_User WHERE username = ?', (username,)
+        elif not email:
+            error = 'Email is required.'
+        elif not city:
+            error = 'City is required.'
+        elif not state:
+            error = 'State is required.'
+        elif not zip_code:
+            error = 'Zip Code is required.'
+        elif not phone_number:
+            error = 'Phone Number is required.'
+        elif g.conn.execute(
+            'SELECT user_id FROM Application_User WHERE user_name = %s', username
         ).fetchone() is not None:
             error = 'User {} is already registered.'.format(username)
-
         if error is None:
-            db.execute(
-                'INSERT INTO Application_User (username, password) VALUES (?, ?)',
-                (username, generate_password_hash(password))
+            print("here 2")
+            g.conn.execute(
+                'INSERT INTO Application_User (user_id, first_name, last_name, user_email, city, zip, phone_number, user_name, password) VALUES (%d, %s, %s, %s, %s, %s, %s, %s, %s)',
+                20, first_name, last_name, user_email, city, zip_code, phone_number, username, generate_password_hash(password)
             )
-            db.commit()
+            g.conn.commit()
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -43,10 +59,10 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
+
         error = None
-        user = db.execute(
-            'SELECT * FROM Application_User WHERE username = ?', (username,)
+        user = g.conn.execute(
+            'SELECT * FROM Application_User WHERE user_name = ?', (username,)
         ).fetchone()
 
         if user is None:
@@ -70,7 +86,7 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
+        g.user = g.conn.execute(
             'SELECT * FROM Application_User WHERE id = ?', (user_id,)
         ).fetchone()
 
