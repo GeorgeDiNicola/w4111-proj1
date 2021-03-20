@@ -51,14 +51,10 @@ def register():
             error = 'User {} is already registered.'.format(username)
         
         if error is None:
-            print("here 2")
-            
             g.conn.execute(
-                'INSERT INTO Application_User (user_id, first_name, last_name, user_email, city, zip, phone_number, user_name, password) VALUES (%d, %s, %s, %s, %s, %s, %s, %s, %s)',
-                20, first_name, last_name, user_email, city, zip_code, phone_number, username, generate_password_hash(password)
+                'INSERT INTO Application_User (user_id, first_name, last_name, user_email, city, state, zip, phone_number, user_name, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                21, first_name, last_name, email, city, state, zip_code, phone_number, username, generate_password_hash(password)
             )
-            
-            #g.conn.commit()
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -67,6 +63,7 @@ def register():
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
+    session.clear()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -74,7 +71,7 @@ def login():
         error = None
         
         user = g.conn.execute(
-            "SELECT user_id FROM Application_User WHERE user_name = %s", (username,)
+            "SELECT user_id, password FROM Application_User WHERE user_name = %s", (username,)
         ).fetchone()
 
         if user is None:
@@ -84,23 +81,28 @@ def login():
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user['user_id']
             return redirect(url_for('index'))
 
         flash(error)
 
     return render_template('auth/login.html')
 
+
 @bp.before_app_request
 def load_logged_in_user():
+    DATABASEURI = "postgresql://gd2581:482543@34.73.36.248/proj1part2"
+    engine = create_engine(DATABASEURI)
+    g.conn = engine.connect()
     user_id = session.get('user_id')
 
     if user_id is None:
         g.user = None
     else:
         g.user = g.conn.execute(
-            'SELECT * FROM Application_User WHERE id = ?', (user_id,)
+            "SELECT user_id FROM Application_User WHERE user_id = %s", (user_id,)
         ).fetchone()
+
 
 def logout():
     session.clear()
@@ -110,7 +112,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('login'))
 
         return view(**kwargs)
 

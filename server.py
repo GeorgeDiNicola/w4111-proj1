@@ -159,12 +159,12 @@ def add():
   g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
   return redirect('/')
 
-
+'''
 @app.route('/login')
 def login():
     abort(401)
     this_is_never_executed()
-
+'''
 
 if __name__ == "__main__":
   import click
