@@ -41,8 +41,12 @@ def register():
             error = 'State is required.'
         elif not zip_code:
             error = 'Zip Code is required.'
+        elif not len(zip_code) == 5:
+            error = 'Zip Code must be 5 digits.'
         elif not phone_number:
             error = 'Phone Number is required.'
+        elif not len(phone_number) == 10:
+            error = 'Phone Number should not have dashes. 10 digit format required.'
         
         
         #cur.execute("select username from users where username = '%s'", (name,))
