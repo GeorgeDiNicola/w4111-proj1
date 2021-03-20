@@ -8,6 +8,7 @@ from sqlalchemy.pool import NullPool
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
+from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -82,7 +83,7 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['user_id']
-            return redirect(url_for('index'))
+            return redirect(url_for('home'))
 
         flash(error)
 

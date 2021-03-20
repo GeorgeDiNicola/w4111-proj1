@@ -13,6 +13,7 @@ import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session, url_for
+from flask_login import login_required, current_user
 import auth
 import sql
 
@@ -57,6 +58,7 @@ def before_request():
     import traceback; traceback.print_exc()
     g.conn = None
 
+
 @app.teardown_request
 def teardown_request(exception):
   """
@@ -84,6 +86,26 @@ def teardown_request(exception):
 #
 @app.route('/')
 def index():
+  # DEBUG: this is debugging code to see what request looks like
+  print(request.args)
+  return redirect(url_for('auth.login'))
+
+
+  #
+  # render_template looks in the templates/ folder for files.
+  # for example, the below file reads template/index.html
+  #
+
+#
+# This is an example of a different path.  You can see it at:
+# 
+#     localhost:8111/another
+#
+# Notice that the function name is another() rather than index()
+# The functions for each app.route need to have different names
+#
+@app.route('/home')
+def home():
   """
   request is a special object that Flask provides to access web request information:
 
@@ -93,9 +115,6 @@ def index():
 
   See its API: https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data
   """
-
-  # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
 
 
   cursor = g.conn.execute(sql.GET_DETAILED_LISTER_INFO)
@@ -132,24 +151,7 @@ def index():
   #
   context = dict(data = names)
 
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
   return render_template("index.html", **context)
-
-#
-# This is an example of a different path.  You can see it at:
-# 
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
-@app.route('/another')
-def another():
-  return render_template("another.html")
 
 
 # Example of adding new data to the database
