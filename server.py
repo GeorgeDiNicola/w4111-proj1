@@ -140,8 +140,9 @@ def appointments():
        WHERE au.user_id = %s''', (g.user,)
   )
 
+  count = appointment_info.rowcount
 
-  return render_template("appointments.html", data=appointment_info)
+  return render_template("appointments.html", data=appointment_info, count=count)
 
 
 @app.route('/availability/<id>')

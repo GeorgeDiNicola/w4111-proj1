@@ -4,33 +4,33 @@
   <h1>{% block title %}My Scheduled Appointments{% endblock %}</h1>
 {% endblock %}
 {% block content %}
-{% if data %}
-<table>
-  <thead>
-    <tr>
-        <th>Activity Type</th>
-        <th>Activity Name</th>
-        <th>Tutor Name</th>
-        <th>Location</th>
-        <th>Date</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-    </tr>
-    </thead>    
-    <tbody>
-     {% for row in data %}    
-            <tr>
-                <td>{{row[0]}}</td>
-                <td>{{row[1]}}</td>
-                <td>{{row[2]}}</td>
-                <td>{{row[3]}}</td>
-                <td>{{row[4]}}</td>
-                <td>{{row[5]}}</td>
-                <td>{{row[6]}}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% if count|int > 0 %}
+    <table>
+      <thead>
+        <tr>
+            <th>Activity Type</th>
+            <th>Activity Name</th>
+            <th>Tutor Name</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+        </tr>
+        </thead>    
+        <tbody>
+         {% for row in data %}    
+                <tr>
+                    <td>{{row[0]}}</td>
+                    <td>{{row[1]}}</td>
+                    <td>{{row[2]}}</td>
+                    <td>{{row[3]}}</td>
+                    <td>{{row[4]}}</td>
+                    <td>{{row[5]}}</td>
+                    <td>{{row[6]}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% else %}
 	 <p>You do not have any appointments</p>
 {% endif %}
