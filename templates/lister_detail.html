@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Lister Information{% endblock %}</h1>
+{% endblock %}
+{% block content %}
+<table>
+  <thead>
+    <tr>
+        <th>Name</th>
+        <th>Hour</th>
+        <th>Date</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th></th>
+    </tr>
+    </thead>    
+    <tbody>
+     {% for row in data %}    
+            <tr>
+                <td>{{row[0]}} {{row[1]}}</td>
+                <td>{{row[2]}}</td>
+                <td>{{row[3]}}</td>
+                <td>{{row[4]}}</td>
+                <td>{{row[5]}}</td>
+                <td><button>Book</button></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+
+  <h1>Lister Reviews</h1>
+  <table>
+    <thead>
+      <tr>
+          <th>Reviewer Name</th>
+          <th>Comment</th>
+          <th>Rating</th>
+      </tr>
+      </thead>    
+      <tbody>
+       {% for row in reviews %}    
+              <tr>
+                  <td>{{row[0]}} {{row[1]}}</td>
+                  <td>{{row[2]}}</td>
+                  <td>{{row[3]}}</td>
+              </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+
+<p><a href="another">Go to the other page</a></p>
+
+{% endblock %}
