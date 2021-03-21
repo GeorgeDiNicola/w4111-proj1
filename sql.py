@@ -31,6 +31,7 @@ GET_DETAILED_LISTER_INFO = '''SELECT
 	u.phone_number, 
 	l.years_experience, 
 	l.price_per_hour, 
+	c.activity_type,
 	c.activity_name,
 	l.lister_id 
 FROM application_user u, lister l, teaches t, category c

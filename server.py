@@ -22,18 +22,8 @@ tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 app.secret_key = "secret"
 app.register_blueprint(auth.bp)
-#
-# The following is a dummy URI that does not connect to a valid database. You will need to modify it to connect to your Part 2 database in order to use the data.
-#
-# XXX: The URI should be in the format of: 
-#
-#     postgresql://USER:PASSWORD@34.73.36.248/project1
-#
-# For example, if you had username zy2431 and password 123123, then the following line would be:
-#
-#     DATABASEURI = "postgresql://zy2431:123123@34.73.36.248/project1"
-#
-DATABASEURI = "postgresql://gd2581:482543@34.73.36.248/proj1part2" # Modify this with your own credentials you received from Joseph!
+
+DATABASEURI = "postgresql://gd2581:482543@34.73.36.248/project1" # Modify this with your own credentials you received from Joseph!
 
 
 #
@@ -118,33 +108,10 @@ def home():
   """
   lister_info = g.conn.execute(sql.GET_DETAILED_LISTER_INFO)
 
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
   # context are the variables that are passed to the template.
   # for example, "data" key in the context variable defined below will be 
   # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  
+
   #context = dict(data = names)
   #context = lister_info
 
@@ -153,20 +120,38 @@ def home():
   #return render_template("index.html", **context)
 
 
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
+@app.route('/appointments')
 @auth.login_required
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+def appointments():
 
-'''
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
-'''
+  appointment_info = g.conn.execute(
+    '''SELECT c.activity_type, c.activity_name, 
+          CONCAT(au.first_name, ' ', au.last_name) as lister_full_name, CONCAT(a.city, ', ', a.state, ', ', a.zip) as location,
+          s.date, s.start_time, s.end_time
+       FROM application_user au
+       JOIN client cl ON cl.user_id = au.user_id
+       JOIN tutors t ON t.client_id = cl.client_id
+       JOIN lister l ON l.lister_id = t.lister_id
+       JOIN appointment a ON a.appointment_id = t.appointment_id
+       JOIN application_user au2 ON au2.user_id = l.user_id
+       JOIN schedule s ON s.schedule_id = a.schedule_id
+       JOIN cat_appt cat ON cat.appointment_id = a.appointment_id
+       JOIN category c ON c.category_id = cat.category_id
+       WHERE au.user_id = %s''', (g.user,)
+  )
+
+
+  return render_template("appointments.html", data=appointment_info)
+
+
+@app.route('/availability/<id>')
+@auth.login_required
+def availability(id):
+  
+  lister_id = id
+  
+  return render_template("availability.html")
+
 
 if __name__ == "__main__":
   import click
