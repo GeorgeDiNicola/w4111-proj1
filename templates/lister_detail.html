@@ -27,9 +27,8 @@
                 <td>{{row[5]}}</td>
                 <td>{{row[6]}}</td>
                 <td>{{row[7]}}, {{row[8]}}, {{row[9]}}</td>
-                <td></td>
+                <td><a href="result?s={{ row[6] }}&l={{ row[10] }}&c={{ row[7] }}&st={{ row[8] }}&z={{ row[9] }}">Book</a></td>
             </tr>
-            <!-- url_for('result', {{row[6]}}, {{row[10]}}, {{row[7]}}, {{row[8]}}, {{row[9]}}) -->
         {% endfor %}
     </tbody>
   </table>

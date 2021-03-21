@@ -128,11 +128,55 @@ def lister_info(lister_id):
 
   return render_template("lister_detail.html", data=sched, reviews=reviews)
 
-@app.route('/result', methods=('GET', 'POST'))
+
+
+
+@app.route('/lister_detail/result', methods=('GET', 'POST'))
 @auth.login_required
-def result(schedule_id, lister_id, city, state, zip):
-  if request.method == 'POST':
-    schedule_id = request.form['schedule_id']
+def result():
+  schedule_id = request.args.get('s')
+  lister_id = request.args.get('l')
+  city = request.args.get('c')
+  state = request.args.get('st')
+  zip_code = request.args.get('z')
+  user_id = g.user
+
+  # get client_id of logged in user
+  client_id = g.conn.execute(
+            "SELECT client_id FROM Client WHERE user_id = %s", (g.user,)
+        ).fetchone()
+
+  client_id = client_id[0]
+
+  error = None
+
+
+
+  # get count of current clients
+  count = g.conn.execute("SELECT COUNT(*) as tot FROM Appointment").fetchone()
+  new_appt_id = count['tot'] + 1
+
+  if error is None:
+    # create appointment
+    g.conn.execute(
+      'INSERT INTO Appointment (appointment_id, city, state, zip, schedule_id) VALUES (%s, %s, %s, %s, %s)',
+        new_appt_id, city, state, zip_code, schedule_id
+    )
+    # add Tutors relation
+    g.conn.execute(
+      'INSERT INTO Tutors (appointment_id, lister_id, client_id) VALUES (%s, %s, %s)',
+      new_appt_id, lister_id, client_id
+    )
+    # update has relation
+    g.conn.execute(
+      'UPDATE Has SET booked = true WHERE lister_id = %s AND schedule_id = %s',
+      lister_id, client_id
+    )
+
+  return redirect(url_for('appointments'))
+
+
+
 
 
 @app.route('/appointments')
