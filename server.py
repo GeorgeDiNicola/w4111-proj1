@@ -118,14 +118,6 @@ def home():
   """
   lister_info = g.conn.execute(sql.GET_DETAILED_LISTER_INFO)
 
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
   # context are the variables that are passed to the template.
   # for example, "data" key in the context variable defined below will be 
   # accessible as a variable in index.html:
@@ -153,20 +145,36 @@ def home():
   #return render_template("index.html", **context)
 
 
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
+@app.route('/appointments')
 @auth.login_required
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  return redirect('/')
+def appointments():
 
-'''
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
-'''
+  appointment_info = g.conn.execute(
+    '''SELECT c.activity_type, c.activity_name, 
+          CONCAT(au.first_name, ' ', au.last_name) as lister_full_name, CONCAT(a.city, ', ', a.state, ', ', a.zip) as location,
+          s.date, s.start_time, s.end_time
+       FROM appointment a 
+       JOIN cat_appt ca ON ca.appointment_id = a.appointment_id
+       JOIN category c ON c.category_id = ca.category_id 
+       JOIN tutors t ON t.appointment_id = a.appointment_id
+       JOIN lister l ON l.lister_id = t.lister_id
+       JOIN application_user au ON l.user_id = au.user_id
+       JOIN schedule s ON s.schedule_id = a.schedule_id
+       WHERE au.user_id = %s''', (g.user,)
+  )
+
+
+  return render_template("appointments.html", data=appointment_info)
+
+
+@app.route('/availability/<id>')
+@auth.login_required
+def availability(id):
+  
+  lister_id = id
+  
+  return render_template("availability.html")
+
 
 if __name__ == "__main__":
   import click
