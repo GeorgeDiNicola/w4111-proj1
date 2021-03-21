@@ -26,6 +26,7 @@ def register():
         state = request.form['state']
         zip_code = request.form['zip_code']
         phone_number = request.form['phone_number']
+        date_of_birth = request.form['date_of_birth']
 
         error = None
 
@@ -47,6 +48,12 @@ def register():
             error = 'Phone Number is required.'
         elif not len(phone_number) == 10:
             error = 'Phone Number should not have dashes. 10 digit format required.'
+        elif not date_of_birth:
+            error = 'Date of Birth is required.'
+        elif not len(date_of_birth) == 10:
+            error = 'Invalid Date of Birth.'
+        elif '-' not in date_of_birth:
+            error = 'Date of Birth must have dashes (yyyy-mm-dd format).'
         
         elif g.conn.execute(
             "SELECT user_id FROM Application_User WHERE user_name = %s", (username,)
@@ -57,11 +64,20 @@ def register():
             # get count of users
             count = g.conn.execute(
                 "SELECT COUNT(*) as tot FROM Application_User").fetchone()
-            new_id = count['tot'] + 1
+            new_user_id = count['tot'] + 1
             # add new user
             g.conn.execute(
                 'INSERT INTO Application_User (user_id, first_name, last_name, user_email, city, state, zip, phone_number, user_name, password) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                new_id, first_name, last_name, email, city, state, zip_code, phone_number, username, generate_password_hash(password)
+                new_user_id, first_name, last_name, email, city, state, zip_code, phone_number, username, generate_password_hash(password)
+            )
+            # get count of current clients
+            count = g.conn.execute(
+                "SELECT COUNT(*) as tot FROM Client").fetchone()
+            new_client_id = count['tot'] + 1
+            # add new client 
+            g.conn.execute(
+                'INSERT INTO Client (client_id, user_id, date_of_birth) VALUES (%s, %s, %s)',
+                new_client_id, new_user_id, date_of_birth
             )
             return redirect(url_for('auth.login'))
 
