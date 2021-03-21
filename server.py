@@ -123,11 +123,16 @@ def home():
 @auth.login_required
 def lister_info(lister_id):
   l_id = str(lister_id)
-  sched = g.conn.execute("SELECT au.first_name, au.last_name, s.hour_num, s.date, s.start_time, s.end_time FROM Application_User au JOIN lister l ON au.user_id = l.user_id JOIN has h ON l.lister_id = h.lister_id JOIN schedule s ON h.schedule_id = s.schedule_id WHERE h.lister_id = %s", l_id)
-  # reviews = g.conn.execute("SELECT r.comment, r.rating FROM review r INNER JOIN reviews rs on rs.review_id = r.review_id INNER JOIN lister l on l.lister_id = rs.lister_id INNER JOIN application_user au on au.user_id = l.user_id WHERE l.lister_id = %s", l_id)
+  sched = g.conn.execute("SELECT au.first_name, au.last_name, s.hour_num, s.date, s.start_time, s.end_time, h.schedule_id, au.city, au.state, au.zip, l.lister_id FROM Application_User au JOIN lister l ON au.user_id = l.user_id JOIN has h ON l.lister_id = h.lister_id JOIN schedule s ON h.schedule_id = s.schedule_id WHERE h.lister_id = %s", l_id)
   reviews = g.conn.execute("SELECT au.first_name, au.last_name, r.comment, r.rating FROM review r INNER JOIN reviews rs on rs.review_id = r.review_id INNER JOIN client c on c.client_id = rs.client_id INNER JOIN application_user au on au.user_id = c.user_id WHERE rs.lister_id = %s", l_id)
 
   return render_template("lister_detail.html", data=sched, reviews=reviews)
+
+@app.route('/result', methods=('GET', 'POST'))
+@auth.login_required
+def result(schedule_id, lister_id, city, state, zip):
+  if request.method == 'POST':
+    schedule_id = request.form['schedule_id']
 
 
 @app.route('/appointments')

@@ -12,6 +12,8 @@
         <th>Date</th>
         <th>Start Time</th>
         <th>End Time</th>
+        <th>Schedule_id</th>
+        <th>Location</th>
         <th></th>
     </tr>
     </thead>    
@@ -23,8 +25,11 @@
                 <td>{{row[3]}}</td>
                 <td>{{row[4]}}</td>
                 <td>{{row[5]}}</td>
-                <td><button>Book</button></td>
+                <td>{{row[6]}}</td>
+                <td>{{row[7]}}, {{row[8]}}, {{row[9]}}</td>
+                <td></td>
             </tr>
+            <!-- url_for('result', {{row[6]}}, {{row[10]}}, {{row[7]}}, {{row[8]}}, {{row[9]}}) -->
         {% endfor %}
     </tbody>
   </table>
@@ -48,7 +53,5 @@
           {% endfor %}
       </tbody>
     </table>
-
-<p><a href="another">Go to the other page</a></p>
 
 {% endblock %}
