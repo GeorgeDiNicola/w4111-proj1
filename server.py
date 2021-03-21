@@ -33,7 +33,7 @@ app.register_blueprint(auth.bp)
 #
 #     DATABASEURI = "postgresql://zy2431:123123@34.73.36.248/project1"
 #
-DATABASEURI = "postgresql://gd2581:482543@34.73.36.248/proj1part2" # Modify this with your own credentials you received from Joseph!
+DATABASEURI = "postgresql://gd2581:482543@34.73.36.248/project1" # Modify this with your own credentials you received from Joseph!
 
 
 #
@@ -153,13 +153,15 @@ def appointments():
     '''SELECT c.activity_type, c.activity_name, 
           CONCAT(au.first_name, ' ', au.last_name) as lister_full_name, CONCAT(a.city, ', ', a.state, ', ', a.zip) as location,
           s.date, s.start_time, s.end_time
-       FROM appointment a 
-       JOIN cat_appt ca ON ca.appointment_id = a.appointment_id
-       JOIN category c ON c.category_id = ca.category_id 
-       JOIN tutors t ON t.appointment_id = a.appointment_id
+       FROM application_user au
+       JOIN client cl ON cl.user_id = au.user_id
+       JOIN tutors t ON t.client_id = cl.client_id
        JOIN lister l ON l.lister_id = t.lister_id
-       JOIN application_user au ON l.user_id = au.user_id
+       JOIN appointment a ON a.appointment_id = t.appointment_id
+       JOIN application_user au2 ON au2.user_id = l.user_id
        JOIN schedule s ON s.schedule_id = a.schedule_id
+       JOIN cat_appt cat ON cat.appointment_id = a.appointment_id
+       JOIN category c ON c.category_id = cat.category_id
        WHERE au.user_id = %s''', (g.user,)
   )
 
