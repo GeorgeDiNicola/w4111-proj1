@@ -129,8 +129,6 @@ def lister_info(lister_id):
   return render_template("lister_detail.html", data=sched, reviews=reviews)
 
 
-
-
 @app.route('/lister_detail/result', methods=('GET', 'POST'))
 @auth.login_required
 def result():
@@ -150,8 +148,6 @@ def result():
 
   error = None
 
-
-
   # get count of current clients
   count = g.conn.execute("SELECT COUNT(*) as tot FROM Appointment").fetchone()
   new_appt_id = count['tot'] + 1
@@ -169,14 +165,11 @@ def result():
     )
     # update has relation
     g.conn.execute(
-      'UPDATE Has SET booked = true WHERE lister_id = %s AND schedule_id = %s',
-      lister_id, client_id
+      'UPDATE Has SET booked = TRUE WHERE lister_id = %s AND schedule_id = %s',
+      lister_id, schedule_id
     )
 
   return redirect(url_for('appointments'))
-
-
-
 
 
 @app.route('/appointments')
@@ -185,7 +178,7 @@ def appointments():
 
   appointment_info = g.conn.execute(
     '''SELECT c.activity_type, c.activity_name, 
-          CONCAT(au.first_name, ' ', au.last_name) as lister_full_name, CONCAT(a.city, ', ', a.state, ', ', a.zip) as location,
+          CONCAT(au2.first_name, ' ', au2.last_name) as lister_full_name, CONCAT(a.city, ', ', a.state, ', ', a.zip) as location,
           s.date, s.start_time, s.end_time
        FROM application_user au
        JOIN client cl ON cl.user_id = au.user_id
