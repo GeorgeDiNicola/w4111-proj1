@@ -122,8 +122,22 @@ def home():
 @app.route('/lister_detail/<lister_id>')
 @auth.login_required
 def lister_info(lister_id):
+  
   l_id = str(lister_id)
-  sched = g.conn.execute("SELECT au.first_name, au.last_name, s.hour_num, s.date, s.start_time, s.end_time, h.schedule_id, au.city, au.state, au.zip, l.lister_id FROM Application_User au JOIN lister l ON au.user_id = l.user_id JOIN has h ON l.lister_id = h.lister_id JOIN schedule s ON h.schedule_id = s.schedule_id WHERE h.lister_id = %s", l_id)
+  
+  sched = g.conn.execute(
+    '''SELECT au.first_name, au.last_name, s.hour_num, 
+              s.date, s.start_time, s.end_time, h.schedule_id, au.city, 
+              au.state, au.zip, l.lister_id, te.category_id, c.activity_type, c.activity_name 
+       FROM Application_User au 
+       JOIN lister l ON au.user_id = l.user_id 
+       JOIN has h ON l.lister_id = h.lister_id 
+       JOIN schedule s ON h.schedule_id = s.schedule_id
+       JOIN teaches te ON te.lister_id = l.lister_id
+       JOIN category c ON c.category_id = te.category_id
+       WHERE h.lister_id = %s''', l_id
+  )
+  
   reviews = g.conn.execute("SELECT au.first_name, au.last_name, r.comment, r.rating FROM review r INNER JOIN reviews rs on rs.review_id = r.review_id INNER JOIN client c on c.client_id = rs.client_id INNER JOIN application_user au on au.user_id = c.user_id WHERE rs.lister_id = %s", l_id)
 
   return render_template("lister_detail.html", data=sched, reviews=reviews)
@@ -137,6 +151,9 @@ def result():
   city = request.args.get('c')
   state = request.args.get('st')
   zip_code = request.args.get('z')
+  category_id = request.args.get('m')
+  activity_type = request.args.get('at')
+  activity_name = request.args.get('an')
   user_id = g.user
 
   # get client_id of logged in user
@@ -167,6 +184,11 @@ def result():
     g.conn.execute(
       'UPDATE Has SET booked = TRUE WHERE lister_id = %s AND schedule_id = %s',
       lister_id, schedule_id
+    )
+    # update cat_appt
+    g.conn.execute(
+      'INSERT INTO cat_appt (category_id, appointment_id) VALUES (%s, %s)',
+      category_id, new_appt_id
     )
 
   return redirect(url_for('appointments'))

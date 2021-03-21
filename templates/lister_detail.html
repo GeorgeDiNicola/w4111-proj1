@@ -8,7 +8,7 @@
   <thead>
     <tr>
         <th>Name</th>
-        <th>Hour</th>
+        <th>Activity</th>
         <th>Date</th>
         <th>Start Time</th>
         <th>End Time</th>
@@ -21,13 +21,14 @@
      {% for row in data %}    
             <tr>
                 <td>{{row[0]}} {{row[1]}}</td>
+                <td>{{row[13]}}</td>
                 <td>{{row[2]}}</td>
                 <td>{{row[3]}}</td>
                 <td>{{row[4]}}</td>
                 <td>{{row[5]}}</td>
                 <td>{{row[6]}}</td>
                 <td>{{row[7]}}, {{row[8]}}, {{row[9]}}</td>
-                <td><a href="result?s={{ row[6] }}&l={{ row[10] }}&c={{ row[7] }}&st={{ row[8] }}&z={{ row[9] }}">Book</a></td>
+                <td><a href="result?s={{ row[6] }}&l={{ row[10] }}&c={{ row[7] }}&st={{ row[8] }}&z={{ row[9] }}&m={{ row[11] }}&at={{ row[12] }}&an={{ row[13] }}">Book</a></td>
             </tr>
         {% endfor %}
     </tbody>
