@@ -26,16 +26,17 @@ FROM Lister
 '''
 
 GET_DETAILED_LISTER_INFO = '''SELECT 
+	c.activity_type,
+	c.activity_name,
 	u.first_name, 
 	u.last_name, 
 	u.phone_number, 
 	l.years_experience, 
 	l.price_per_hour, 
-	c.activity_type,
-	c.activity_name,
 	l.lister_id 
 FROM application_user u, lister l, teaches t, category c
-WHERE u.user_id = l.user_id AND l.lister_id = t.lister_id AND t.category_id = c.category_id;
+WHERE u.user_id = l.user_id AND l.lister_id = t.lister_id AND t.category_id = c.category_id
+ORDER BY c.activity_type, c.activity_name;
 '''
 
 

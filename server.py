@@ -119,11 +119,12 @@ def home():
 
   #return render_template("index.html", **context)
 
-@app.route('/lister_detail/<lister_id>')
+@app.route('/lister_detail/<lister_id>/<activity_name>')
 @auth.login_required
-def lister_info(lister_id):
+def lister_detail(lister_id=None, activity_name=None):
   
   l_id = str(lister_id)
+  activity_name = str(activity_name)
   
   sched = g.conn.execute(
     '''SELECT au.first_name, au.last_name, s.hour_num, 
@@ -135,7 +136,7 @@ def lister_info(lister_id):
        JOIN schedule s ON h.schedule_id = s.schedule_id
        JOIN teaches te ON te.lister_id = l.lister_id
        JOIN category c ON c.category_id = te.category_id
-       WHERE h.lister_id = %s''', l_id
+       WHERE h.booked = FALSE AND h.lister_id = %s AND c.activity_name = %s''', l_id, activity_name
   )
   
   reviews = g.conn.execute("SELECT au.first_name, au.last_name, r.comment, r.rating FROM review r INNER JOIN reviews rs on rs.review_id = r.review_id INNER JOIN client c on c.client_id = rs.client_id INNER JOIN application_user au on au.user_id = c.user_id WHERE rs.lister_id = %s", l_id)
@@ -143,7 +144,7 @@ def lister_info(lister_id):
   return render_template("lister_detail.html", data=sched, reviews=reviews)
 
 
-@app.route('/lister_detail/result', methods=('GET', 'POST'))
+@app.route('/result', methods=('GET', 'POST'))
 @auth.login_required
 def result():
   schedule_id = request.args.get('s')
