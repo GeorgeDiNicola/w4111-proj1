@@ -119,6 +119,81 @@ def home():
 
   #return render_template("index.html", **context)
 
+@app.route('/lister_detail/<lister_id>/<activity_name>')
+@auth.login_required
+def lister_detail(lister_id=None, activity_name=None):
+  
+  l_id = str(lister_id)
+  activity_name = str(activity_name)
+  
+  sched = g.conn.execute(
+    '''SELECT au.first_name, au.last_name, s.hour_num, 
+              s.date, s.start_time, s.end_time, h.schedule_id, au.city, 
+              au.state, au.zip, l.lister_id, te.category_id, c.activity_type, c.activity_name 
+       FROM Application_User au 
+       JOIN lister l ON au.user_id = l.user_id 
+       JOIN has h ON l.lister_id = h.lister_id 
+       JOIN schedule s ON h.schedule_id = s.schedule_id
+       JOIN teaches te ON te.lister_id = l.lister_id
+       JOIN category c ON c.category_id = te.category_id
+       WHERE h.booked = FALSE AND h.lister_id = %s AND c.activity_name = %s''', l_id, activity_name
+  )
+  
+  reviews = g.conn.execute("SELECT au.first_name, au.last_name, r.comment, r.rating FROM review r INNER JOIN reviews rs on rs.review_id = r.review_id INNER JOIN client c on c.client_id = rs.client_id INNER JOIN application_user au on au.user_id = c.user_id WHERE rs.lister_id = %s", l_id)
+
+  return render_template("lister_detail.html", data=sched, reviews=reviews)
+
+
+@app.route('/result', methods=('GET', 'POST'))
+@auth.login_required
+def result():
+  schedule_id = request.args.get('s')
+  lister_id = request.args.get('l')
+  city = request.args.get('c')
+  state = request.args.get('st')
+  zip_code = request.args.get('z')
+  category_id = request.args.get('m')
+  activity_type = request.args.get('at')
+  activity_name = request.args.get('an')
+  user_id = g.user
+
+  # get client_id of logged in user
+  client_id = g.conn.execute(
+            "SELECT client_id FROM Client WHERE user_id = %s", (g.user,)
+        ).fetchone()
+
+  client_id = client_id[0]
+
+  error = None
+
+  # get count of current clients
+  count = g.conn.execute("SELECT COUNT(*) as tot FROM Appointment").fetchone()
+  new_appt_id = count['tot'] + 1
+
+  if error is None:
+    # create appointment
+    g.conn.execute(
+      'INSERT INTO Appointment (appointment_id, city, state, zip, schedule_id) VALUES (%s, %s, %s, %s, %s)',
+        new_appt_id, city, state, zip_code, schedule_id
+    )
+    # add Tutors relation
+    g.conn.execute(
+      'INSERT INTO Tutors (appointment_id, lister_id, client_id) VALUES (%s, %s, %s)',
+      new_appt_id, lister_id, client_id
+    )
+    # update has relation
+    g.conn.execute(
+      'UPDATE Has SET booked = TRUE WHERE lister_id = %s AND schedule_id = %s',
+      lister_id, schedule_id
+    )
+    # update cat_appt
+    g.conn.execute(
+      'INSERT INTO cat_appt (category_id, appointment_id) VALUES (%s, %s)',
+      category_id, new_appt_id
+    )
+
+  return redirect(url_for('appointments'))
+
 
 @app.route('/appointments')
 @auth.login_required
@@ -126,7 +201,7 @@ def appointments():
 
   appointment_info = g.conn.execute(
     '''SELECT c.activity_type, c.activity_name, 
-          CONCAT(au.first_name, ' ', au.last_name) as lister_full_name, CONCAT(a.city, ', ', a.state, ', ', a.zip) as location,
+          CONCAT(au2.first_name, ' ', au2.last_name) as lister_full_name, CONCAT(a.city, ', ', a.state, ', ', a.zip) as location,
           s.date, s.start_time, s.end_time
        FROM application_user au
        JOIN client cl ON cl.user_id = au.user_id
@@ -142,16 +217,7 @@ def appointments():
 
   count = appointment_info.rowcount
 
-  return render_template("appointments.html", data=appointment_info, count=count)
-
-
-@app.route('/availability/<id>')
-@auth.login_required
-def availability(id):
-  
-  lister_id = id
-  
-  return render_template("availability.html")
+  return render_template("appointments.html", data=appointment_info, count=count) 
 
 
 if __name__ == "__main__":
