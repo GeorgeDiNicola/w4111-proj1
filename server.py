@@ -23,7 +23,7 @@ app = Flask(__name__, template_folder=tmpl_dir)
 app.secret_key = "secret"
 app.register_blueprint(auth.bp)
 
-DATABASEURI = "postgresql://gd2581:482543@34.73.36.248/project1" # Modify this with your own credentials you received from Joseph!
+DATABASEURI = "*********"
 
 
 #
